@@ -16,6 +16,14 @@ const App = () => {
       <ME />
       <BSCIT />
       <BEE/>
+import LandingPage from "./Component/LandingPage/LandingPage";
+// import HeroSection from "./Component/LandingPage/HeroSection";
+
+const App = () => {
+  return (
+    <div>
+      {/* <HeroSection /> */}
+      <LandingPage />
     </div>
   );
 };
