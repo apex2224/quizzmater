@@ -1,4 +1,5 @@
 import React from "react";
+import LandingPage from "./Component/LandingPage/LandingPage.js";
 import DigitalMarketing from "./Component/QuizzQuestions/DigitalMarketing/DigitalMarketing";
 import CSE from "./Component/QuizzQuestions/CSE/CSE.js";
 import ECE from "./Component/QuizzQuestions/ECE/ECE.js";
@@ -9,6 +10,7 @@ import BEE from "./Component/QuizzQuestions/BEE/BEE.js";
 const App = () => {
   return (
     <div>
+      <LandingPage />
       <DigitalMarketing />
       <CSE />
       <ECE/>
@@ -16,16 +18,9 @@ const App = () => {
       <ME />
       <BSCIT />
       <BEE/>
-import LandingPage from "./Component/LandingPage/LandingPage";
-// import HeroSection from "./Component/LandingPage/HeroSection";
-
-const App = () => {
-  return (
-    <div>
-      {/* <HeroSection /> */}
-      <LandingPage />
     </div>
   );
-};
+}
+
 
 export default App;
