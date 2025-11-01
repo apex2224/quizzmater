@@ -1,0 +1,269 @@
+/* General styling for the whole section */
+.landingPage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  min-height: 90vh;
+  gap: 40px;
+  overflow: hidden;
+}
+
+/* Background Icons */
+.backgroundIcons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bgIconWrapper {
+  position: absolute;
+  animation: float 6s ease-in-out infinite;
+}
+
+.bgIconWrapper:nth-child(odd) {
+  animation-delay: 0.5s;
+}
+
+.bgIconWrapper:nth-child(even) {
+  animation-delay: 1s;
+}
+
+.bgIcon {
+  color: #0d2c54;
+  opacity: 0.06;
+  filter: blur(1px);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--rotation, 0deg));
+  }
+  50% {
+    transform: translateY(-20px) rotate(var(--rotation, 0deg));
+  }
+}
+
+/* Left Column */
+.leftColumn {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  max-width: 600px;
+}
+
+.preHeading {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.mainHeading {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #0d2c54;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+
+.highlight {
+  color: #f7b731;
+  font-weight: 800;
+  display: block;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Right Column */
+.rightColumn {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  max-width: 550px;
+}
+
+.formContainer {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+}
+
+.formHeading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0d2c54;
+  margin-bottom: 30px;
+}
+
+.formRow {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: #fdfdfd;
+  box-sizing: border-box;
+}
+
+.departmentSelect {
+  width: 70% !important;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: #fdfdfd;
+  box-sizing: border-box;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #999;
+}
+
+.formRow .input,
+.formRow .select {
+  flex: 1;
+}
+
+.textarea {
+  height: 140px;
+  resize: none;
+  margin-bottom: 20px;
+}
+
+.phoneInputContainer {
+  display: flex;
+  gap: 5px;
+  width: 70%;
+}
+
+.countryCodeSelect {
+  width: 50%;
+  padding: 16px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px 0 0 5px;
+  font-size: 1rem;
+  background-color: #fdfdfd;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: center;
+}
+
+.phoneInput {
+  flex: 1;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 0 5px 5px 0;
+  font-size: 1rem;
+  background-color: #fdfdfd;
+  box-sizing: border-box;
+}
+
+.error {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  padding-left: 16px;
+  width: 100%;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: 5px;
+  background-color: #f7d060;
+  color: #444;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+  background-color: #f7b731;
+}
+
+.submitButton:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.submitButton:disabled:hover {
+  background-color: #cccccc;
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 900px) {
+  .landingPage {
+    flex-direction: column;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    max-width: 100%;
+  }
+
+  .highlight {
+    display: inline;
+  }
+
+  .mainHeading {
+    font-size: 2.5rem;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .formRow .input,
+  .formRow .select {
+    margin-bottom: 20px;
+  }
+
+  .phoneInputContainer {
+    flex-direction: row;
+  }
+
+  .countryCodeSelect {
+    width: 90px;
+    border-radius: 5px 0 0 5px;
+  }
+
+  .phoneInput {
+    border-radius: 0 5px 5px 0;
+  }
+
+  .bgIconWrapper {
+    display: none;
+  }
+}

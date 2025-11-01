@@ -1,10 +1,12 @@
 import React from "react";
-import ContactForm from "./Component/LandingPage/LandingPage";
+import LandingPage from "./Component/LandingPage/LandingPage";
+// import HeroSection from "./Component/LandingPage/HeroSection";
 
 const App = () => {
   return (
     <div>
-      <ContactForm />
+      {/* <HeroSection /> */}
+      <LandingPage />
     </div>
   );
 };

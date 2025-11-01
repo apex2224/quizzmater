@@ -1,162 +1,359 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import styles from "./LandingPage.module.css";
+import {
+  Code,
+  Cpu,
+  Database,
+  Zap,
+  Server,
+  BarChart3,
+  Users,
+} from "lucide-react";
+import { FiPhone, FiFlag } from "react-icons/fi";
 
-const ContactForm = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    phone: '',
-    message: ''
-  });
+const LandingPage = () => {
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [yearOptions, setYearOptions] = useState([]);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
+  const [selectedYear, setSelectedYear] = useState("");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const techFields = [
+    {
+      name: "CSE",
+      icon: Code,
+      label: "Computer Science",
+      position: { top: "10%", left: "5%" },
+      rotation: 15,
+    },
+    {
+      name: "ME",
+      icon: Cpu,
+      label: "Mechanical Engineering",
+      position: { top: "25%", left: "85%" },
+      rotation: -20,
+    },
+    {
+      name: "ECE",
+      icon: Database,
+      label: "Electronics & Comm.",
+      position: { top: "45%", left: "8%" },
+      rotation: 30,
+    },
+    {
+      name: "BEE",
+      icon: Zap,
+      label: "Electrical Engineering",
+      position: { top: "60%", left: "90%" },
+      rotation: -15,
+    },
+    {
+      name: "BSCIT",
+      icon: Server,
+      label: "Information Tech.",
+      position: { top: "75%", left: "10%" },
+      rotation: 25,
+    },
+    {
+      name: "IT",
+      icon: BarChart3,
+      label: "IT Engineering",
+      position: { top: "15%", left: "50%" },
+      rotation: -25,
+    },
+    {
+      name: "MKT",
+      icon: Users,
+      label: "Marketing",
+      position: { top: "85%", left: "80%" },
+      rotation: 20,
+    },
+  ];
+
+  // Update year options based on department selection
+  const handleDepartmentChange = (e) => {
+    const department = e.target.value;
+    setSelectedDepartment(department);
+
+    // Define year options based on course type
+    let years = 0;
+    if (["CSE", "ME", "ECE", "BEE", "IT"].includes(department)) {
+      // B.Tech courses typically have 4 years
+      years = 4;
+    } else if (["BSCIT"].includes(department)) {
+      // B.Sc IT typically has 3 years
+      years = 3;
+    } else if (["MKT"].includes(department)) {
+      // BBA or Marketing typically has 3 years
+      years = 3;
+    }
+
+    // Set the appropriate number of year options
+    setYearOptions(Array.from({ length: years }, (_, i) => i + 1));
+    // Reset selected year when department changes
+    setSelectedYear("");
   };
 
-  const handleSubmit = () => {
-    if (isFormValid) {
-      console.log('Form submitted:', formData);
-      alert('Appointment request submitted successfully!');
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        phone: '',
-        message: ''
-      });
+  // Validate Indian mobile number
+  const validateIndianMobile = (mobileNumber) => {
+    // Remove any spaces, dashes, or parentheses
+    const cleanedNumber = mobileNumber.replace(/\s+|-|\(|\)|\+91/g, "");
+
+    // Check if it starts with country code (91) and has 10 digits
+    if (cleanedNumber.startsWith("91") && cleanedNumber.length === 12) {
+      const numberWithoutCode = cleanedNumber.substring(2);
+      return /^[6-9]\d{9}$/.test(numberWithoutCode);
+    }
+
+    // Check if it starts with 0 and has 11 digits (0 prefix)
+    if (cleanedNumber.startsWith("0") && cleanedNumber.length === 11) {
+      const numberWithoutZero = cleanedNumber.substring(1);
+      return /^[6-9]\d{9}$/.test(numberWithoutZero);
+    }
+
+    // Check if it's a direct 10-digit number
+    if (cleanedNumber.length === 10) {
+      return /^[6-9]\d{9}$/.test(cleanedNumber);
+    }
+
+    // Check if it's an international format +91 XX XXXX XXXX
+    if (cleanedNumber.startsWith("+91") && cleanedNumber.length === 13) {
+      const numberWithoutCode = cleanedNumber.substring(3);
+      return /^[6-9]\d{9}$/.test(numberWithoutCode);
+    }
+
+    return false;
+  };
+
+  // Handle phone number change
+  const handlePhoneChange = (e) => {
+    const phoneNumber = e.target.value;
+    setPhone(phoneNumber);
+
+    // Validate the phone number
+    if (phoneNumber && !validateIndianMobile(phoneNumber)) {
+      setPhoneError(
+        "Please enter a valid mobile number (10 digits starting with 6-9)"
+      );
+    } else {
+      setPhoneError("");
     }
   };
 
-  const isFormValid = formData.name && formData.email && formData.subject && formData.phone && formData.message;
+  // Handle country code change
+  const handleCountryCodeChange = (e) => {
+    setCountryCode(e.target.value);
+  };
+
+  // Handle year change
+  const handleYearChange = (e) => {
+    setSelectedYear(e.target.value);
+  };
+
+  // Handle name input change
+  const handleNameChange = (e) => {
+    setUserName(e.target.value);
+  };
+
+  // Handle email input change
+  const handleEmailChange = (e) => {
+    setUserEmail(e.target.value);
+  };
+
+  // Check if form is valid
+  const isFormValid = () => {
+    return (
+      userName.trim() !== "" &&
+      userEmail.trim() !== "" &&
+      selectedDepartment !== "" &&
+      phone !== "" &&
+      !phoneError &&
+      selectedYear !== ""
+    );
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validate all fields
+    let isValid = true;
+
+    if (!userName.trim()) {
+      isValid = false;
+    }
+
+    if (!userEmail.trim()) {
+      isValid = false;
+    }
+
+    if (!selectedDepartment) {
+      isValid = false;
+    }
+
+    if (!selectedYear) {
+      isValid = false;
+    }
+
+    if (!phone || !validateIndianMobile(phone)) {
+      setPhoneError("Please enter a valid mobile number");
+      isValid = false;
+    }
+
+    if (isValid) {
+      // Form submission logic would go here
+      console.log({
+        name: userName,
+        email: userEmail,
+        department: selectedDepartment,
+        year: selectedYear,
+        phone: phone,
+        countryCode: countryCode,
+      });
+      console.log("Form submitted successfully");
+    }
+  };
 
   return (
-    <section 
-      className="px-4 md:px-8 py-12 md:py-16 lg:py-24" 
-      style={{ backgroundColor: '#EEEEEE' }} 
-      id="contactUs"
-    >
-      <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          <div className="flex flex-col justify-center order-2 lg:order-1">
-            <div className="mb-4 md:mb-6">
-              <span 
-                className="text-xs md:text-sm font-semibold uppercase tracking-wider" 
-                style={{ color: '#444444' }}
-              >
-                APPOINTMENT NOW
-              </span>
+    <div className={styles.landingPage}>
+      <h1>
+        {" "}
+        ZIION <span className={styles.highlight}>TECHNOLOGY</span>{" "}
+      </h1>
+      {/* Background Tech Icons */}
+      <div className={styles.backgroundIcons}>
+        {techFields.map((field, index) => {
+          const IconComponent = field.icon;
+          return (
+            <div
+              key={index}
+              className={styles.bgIconWrapper}
+              style={{
+                top: field.position.top,
+                left: field.position.left,
+                transform: `rotate(${field.rotation}deg)`,
+              }}
+            >
+              <IconComponent size={80} className={styles.bgIcon} />
             </div>
-            <h2 
-              className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mb-6 md:mb-8" 
-              style={{ color: '#003153' }}
-            >
-              We're Ready To Talk About Your{' '}
-              <span style={{ color: '#fbbf24' }}>Opportunities</span>
-            </h2>
-            <p 
-              className="text-base md:text-lg leading-relaxed max-w-xl" 
-              style={{ color: '#4a5568' }}
-            >
-              Let's discuss how we can help transform your ideas into successful products. 
-              Schedule a consultation with our expert team today.
-            </p>
-          </div>
+          );
+        })}
+      </div>
 
-          <div className="order-1 lg:order-2">
-            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg">
-              <h3 
-                className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-center" 
-                style={{ color: '#003153' }}
+      {/* Left Column - Text Content */}
+      <div className={styles.leftColumn}>
+        <p className={styles.preHeading}>HEY THERE!</p>
+        <h1 className={styles.mainHeading}>
+          Are You Ready{" "}
+          <span className={styles.highlight}>For Opportunities</span>
+        </h1>
+        <p className={styles.description}>
+          Let's discuss how we can help transform your ideas into successful
+          products. Schedule a consultation with our expert team today.
+        </p>
+      </div>
+
+      {/* Right Column - Form */}
+      <div className={styles.rightColumn}>
+        <div className={styles.formContainer}>
+          <h2 className={styles.formHeading}>Ready to Win Prizes?</h2>
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formRow}>
+              <input
+                type="text"
+                placeholder="Enter Your Name"
+                className={styles.input}
+                value={userName}
+                onChange={handleNameChange}
+              />
+              <input
+                type="email"
+                placeholder="Enter Your Email"
+                className={styles.input}
+                value={userEmail}
+                onChange={handleEmailChange}
+              />
+            </div>
+            <div className={styles.formRow}>
+              <select
+                className={styles.departmentSelect}
+                value={selectedDepartment}
+                onChange={handleDepartmentChange}
               >
-                Make An Appointment
-              </h3>
-              <div className="space-y-4 md:space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="text"
-                      placeholder="Enter Your Name"
-                      className="w-full p-3 md:p-4 border border-gray-200 rounded-lg transition-all duration-300 outline-none focus:ring-2 focus:ring-yellow-400"
-                      style={{ borderColor: '#e2e8f0' }}
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="email"
-                      placeholder="Enter Your Email"
-                      className="w-full p-3 md:p-4 border border-gray-200 rounded-lg transition-all duration-300 outline-none focus:ring-2 focus:ring-yellow-400"
-                      style={{ borderColor: '#e2e8f0' }}
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <select
-                      name="subject"
-                      className="w-full p-3 md:p-4 border border-gray-200 rounded-lg transition-all duration-300 outline-none focus:ring-2 focus:ring-yellow-400"
-                      style={{ borderColor: '#e2e8f0', color: formData.subject ? '#003153' : '#718096' }}
-                      value={formData.subject}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select Subject</option>
-                      <option value="consultation">Consultation</option>
-                      <option value="support">Support</option>
-                      <option value="partnership">Partnership</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <input
-                      type="tel"
-                      placeholder="Phone Number"
-                      className="w-full p-3 md:p-4 border border-gray-200 rounded-lg transition-all duration-300 outline-none focus:ring-2 focus:ring-yellow-400"
-                      style={{ borderColor: '#e2e8f0' }}
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <textarea
-                    name="message"
-                    placeholder="Write Your Message"
-                    rows={5}
-                    className="w-full p-3 md:p-4 border border-gray-200 rounded-lg transition-all duration-300 resize-none outline-none focus:ring-2 focus:ring-yellow-400"
-                    style={{ borderColor: '#e2e8f0' }}
-                    value={formData.message}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <button
-                  onClick={handleSubmit}
-                  disabled={!isFormValid}
-                  className="w-full py-3 md:py-4 px-6 rounded-lg font-semibold text-base md:text-lg transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
-                  style={{ backgroundColor: '#fbbf24', color: '#444444' }}
+                <option value="">Select Department</option>
+                <option value="CSE">Computer Science (CSE)</option>
+                <option value="ME">Mechanical Engineering (ME)</option>
+                <option value="ECE">Electronics & Comm. (ECE)</option>
+                <option value="BEE">Electrical Engineering (BEE)</option>
+                <option value="BSCIT">Information Tech. (BSCIT)</option>
+                <option value="IT">IT Engineering (IT)</option>
+                <option value="MKT">Marketing (MKT)</option>
+              </select>
+              <div className={styles.phoneInputContainer}>
+                <select
+                  className={styles.countryCodeSelect}
+                  value={countryCode}
+                  onChange={handleCountryCodeChange}
                 >
-                  MAKE AN APPOINTMENT
-                </button>
+                  <option value="+91">🇮🇳 +91</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+92">🇵🇰 +92</option>
+                  <option value="+880">🇧🇩 +880</option>
+                  <option value="+977">🇳🇵 +977</option>
+                </select>
+                <input
+                  type="tel"
+                  placeholder="Phone Number"
+                  className={styles.phoneInput}
+                  value={phone}
+                  onChange={handlePhoneChange}
+                />
               </div>
             </div>
-          </div>
+            {phoneError && <div className={styles.error}>{phoneError}</div>}
+
+            {/* Dynamic Year Field - Shows course-specific years */}
+            {yearOptions.length > 0 && (
+              <div className={styles.formRow}>
+                <select
+                  className={`${styles.input} ${styles.select}`}
+                  value={selectedYear}
+                  onChange={handleYearChange}
+                >
+                  <option value="">Select Year</option>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                      {year === 1
+                        ? "st"
+                        : year === 2
+                        ? "nd"
+                        : year === 3
+                        ? "rd"
+                        : "th"}{" "}
+                      Year
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={!isFormValid()}
+            >
+              PLAY NOW
+            </button>
+          </form>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
-export default ContactForm;
+export default LandingPage;
