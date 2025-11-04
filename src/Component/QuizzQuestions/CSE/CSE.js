@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import styles from './CSE.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// 2. UPDATED quizData FOR CSE
+// 2. UPDATED quizData FOR CSE - 10 Questions
 const quizData = [
   {
     question: "What does 'SQL' stand for?",
@@ -54,11 +54,76 @@ const quizData = [
       "Process Management"
     ],
     correctAnswer: "Compiler"
+  },
+  {
+    question: "What is the main purpose of a compiler?",
+    options: [
+      "To execute programs line by line",
+      "To translate high-level code to machine code",
+      "To manage memory allocation",
+      "To debug programs"
+    ],
+    correctAnswer: "To translate high-level code to machine code"
+  },
+  {
+    question: "In networking, what does TCP stand for?",
+    options: [
+      "Transfer Control Protocol",
+      "Transmission Control Protocol",
+      "Transport Communication Protocol",
+      "Technical Control Process"
+    ],
+    correctAnswer: "Transmission Control Protocol"
+  },
+  {
+    question: "Which sorting algorithm is generally the fastest for large datasets?",
+    options: [
+      "Bubble Sort",
+      "Selection Sort",
+      "Quick Sort",
+      "Insertion Sort"
+    ],
+    correctAnswer: "Quick Sort"
+  },
+  {
+    question: "What does RAM stand for?",
+    options: [
+      "Read Access Memory",
+      "Random Access Memory",
+      "Rapid Access Module",
+      "Real Address Memory"
+    ],
+    correctAnswer: "Random Access Memory"
+  },
+  {
+    question: "In databases, what is a primary key?",
+    options: [
+      "A key used to encrypt data",
+      "A unique identifier for a record",
+      "The first column in a table",
+      "A foreign key reference"
+    ],
+    correctAnswer: "A unique identifier for a record"
   }
 ];
 
+// Score code mapping (4-digit codes for each score 0-10)
+const scoreCodeMap = {
+  0: "1024",
+  1: "2048",
+  2: "3072",
+  3: "4096",
+  4: "5120",
+  5: "6144",
+  6: "7168",
+  7: "8192",
+  8: "9216",
+  9: "9999",
+  10: "1234"
+};
+
 // 3. RENAMED THE COMPONENT
-const Cse = () => {
+const CSE = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
@@ -160,40 +225,30 @@ const Cse = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              className={styles.resultsContainer}
             >
-              <h2 className={styles.resultsTitle}>Quiz Completed!</h2>
-              <p className={styles.resultsText}>
-                You scored {answers.score} out of {totalQuestions}
-              </p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className={styles.congratsIcon}
+              >
+                🎉
+              </motion.div>
+              <h2 className={styles.resultsTitle}>Congratulations!</h2>
+              <p className={styles.congratsText}>You Win!</p>
               
-              <div className={styles.resultsBreakdown}>
-                {quizData.map((question, index) => {
-                  const userAnswer = answers[index];
-                  const isCorrect = userAnswer === question.correctAnswer;
-                  return (
-                    <div key={index} className={styles.resultItem}>
-                      <p className={styles.resultQuestion}>
-                        {index + 1}. {question.question}
-                      </p>
-                      <p className={`${styles.resultAnswer} ${isCorrect ? styles.correct : styles.incorrect}`}>
-                        Your answer: {userAnswer || "No answer"}
-                      </p>
-                      {!isCorrect && (
-                        <p className={`${styles.resultAnswer} ${styles.correct}`}>
-                          Correct answer: {question.correctAnswer}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className={styles.codeDisplay}>
+                <p className={styles.codeLabel}>Your Code:</p>
+                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '1rem' }}
+                style={{ width: '100%', marginTop: '2rem' }}
               >
-                Try Again
+                Thank You
               </button>
             </motion.div>
           ) : (
@@ -221,7 +276,6 @@ const Cse = () => {
                   exit="exit"
                   className={styles.questionWrapper}
                 >
-                  {/* 4. UPDATED QUIZ TITLE */}
                   <h3 className={styles.questionText}>{quizData[currentQuestion].question}</h3>
                   <div className={styles.optionsContainer}>
                     {quizData[currentQuestion].options.map((option, index) => (
@@ -276,4 +330,4 @@ const Cse = () => {
 };
 
 // 5. EXPORT THE NEW COMPONENT
-export default Cse;
+export default CSE;

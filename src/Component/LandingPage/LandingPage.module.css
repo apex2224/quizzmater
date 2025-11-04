@@ -2,15 +2,43 @@
 .landingPage {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 60px 40px;
   background-color: #f8f9fa;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
   min-height: 90vh;
-  gap: 40px;
   overflow: hidden;
+}
+
+/* Style for the main page title */
+.pageTitle {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #0d2c54;
+  text-align: center;
+  margin-bottom: 60px;
+  z-index: 1;
+}
+
+/* Make highlight inline for the title */
+.pageTitle .highlight {
+  display: inline;
+  color: #f7b731;
+  font-weight: 800;
+}
+
+/* New wrapper for the two-column layout */
+.contentRow {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  width: 100%;
+  max-width: 1200px;
 }
 
 /* Background Icons */
@@ -127,26 +155,25 @@
   font-size: 1rem;
   background-color: #fdfdfd;
   box-sizing: border-box;
+  -webkit-appearance: none; /* Removes default browser styling on select */
+  -moz-appearance: none;
+  appearance: none;
 }
 
-.departmentSelect {
-  width: 70% !important;
-  padding: 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  font-size: 1rem;
-  background-color: #fdfdfd;
-  box-sizing: border-box;
-}
+/* --- REFACTOR: Removed .departmentSelect --- */
+/* .select now handles all select boxes */
 
 .input::placeholder,
 .textarea::placeholder {
   color: #999;
 }
 
+/* --- REFACTOR: Simplified rules --- */
 .formRow .input,
-.formRow .select {
-  flex: 1;
+.formRow .select,
+.formRow .phoneInputContainer {
+  flex: 1; /* All items in a form row will share space equally */
+  min-width: 0; /* Fix for flexbox overflow */
 }
 
 .textarea {
@@ -157,24 +184,30 @@
 
 .phoneInputContainer {
   display: flex;
-  gap: 5px;
-  width: 70%;
+  /* Removed width: 70% */
 }
 
-.countryCodeSelect {
-  width: 50%;
+.countryCodeDisplay {
+  /* --- REFACTOR: Use fixed width for better layout --- */
+  width: 70px;
+  flex-shrink: 0; /* Prevents shrinking */
   padding: 16px 12px;
   border: 1px solid #e0e0e0;
+  border-right: none; /* Attach to input */
   border-radius: 5px 0 0 5px;
   font-size: 1rem;
-  background-color: #fdfdfd;
+  background-color: #f0f0f0;
+  color: #555;
   box-sizing: border-box;
-  cursor: pointer;
-  text-align: center;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .phoneInput {
-  flex: 1;
+  flex: 1; /* Takes up remaining space */
+  min-width: 0; /* Fix for flexbox overflow */
   padding: 16px;
   border: 1px solid #e0e0e0;
   border-radius: 0 5px 5px 0;
@@ -186,10 +219,16 @@
 .error {
   color: #e74c3c;
   font-size: 0.9rem;
-  margin-top: 5px;
+  margin-top: -15px; /* Pull up closer to the field */
   margin-bottom: 15px;
-  padding-left: 16px;
   width: 100%;
+  /* Aligned with the second column in the row */
+  padding-left: calc(50% + 10px);
+}
+
+/* Error alignment for single-column rows */
+.formRow + .error {
+  padding-left: 0;
 }
 
 .submitButton {
@@ -219,51 +258,221 @@
   background-color: #cccccc;
 }
 
-/* Responsive Design for Mobile */
-@media (max-width: 900px) {
+/* Tablet Responsive Design */
+@media (max-width: 1024px) {
   .landingPage {
+    padding: 50px 30px;
+  }
+
+  .pageTitle {
+    font-size: 3rem;
+    margin-bottom: 40px;
+  }
+
+  .mainHeading {
+    font-size: 2.8rem;
+  }
+
+  .formContainer {
+    padding: 35px;
+  }
+}
+
+/* Mobile Responsive Design - Enhanced UX */
+@media (max-width: 768px) {
+  .landingPage {
+    padding: 30px 20px;
+    min-height: auto;
+  }
+
+  .pageTitle {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    line-height: 1.3;
+  }
+
+  .contentRow {
     flex-direction: column;
-    padding: 40px 20px;
+    gap: 35px;
+    width: 100%;
+  }
+
+  .leftColumn {
+    max-width: 100%;
     text-align: center;
   }
 
-  .leftColumn,
-  .rightColumn {
-    max-width: 100%;
+  .preHeading {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+
+  .mainHeading {
+    font-size: 2.2rem;
+    line-height: 1.3;
+    margin-bottom: 15px;
   }
 
   .highlight {
     display: inline;
   }
 
-  .mainHeading {
-    font-size: 2.5rem;
+  .description {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .rightColumn {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .formContainer {
+    padding: 30px 25px;
+    border-radius: 8px;
+  }
+
+  .formHeading {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    text-align: center;
   }
 
   .formRow {
     flex-direction: column;
-    gap: 0;
+    gap: 15px;
+    margin-bottom: 15px;
   }
 
   .formRow .input,
-  .formRow .select {
-    margin-bottom: 20px;
+  .formRow .select,
+  .formRow .phoneInputContainer {
+    margin-bottom: 0;
+    flex-basis: auto; /* Reset flex basis */
   }
 
   .phoneInputContainer {
+    width: 100%;
     flex-direction: row;
   }
 
-  .countryCodeSelect {
-    width: 90px;
+  .countryCodeDisplay {
+    width: 70px;
+    padding: 16px 8px;
     border-radius: 5px 0 0 5px;
+    font-size: 0.95rem;
   }
 
   .phoneInput {
+    flex: 1;
     border-radius: 0 5px 5px 0;
+  }
+
+  .error {
+    font-size: 0.85rem;
+    padding-left: 8px;
+    margin-top: -10px; /* Mobile error spacing */
+    margin-bottom: 10px;
+  }
+
+  .submitButton {
+    padding: 16px;
+    font-size: 1rem;
+    margin-top: 10px;
   }
 
   .bgIconWrapper {
     display: none;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .landingPage {
+    padding: 25px 15px;
+  }
+
+  .pageTitle {
+    font-size: 1.75rem;
+    margin-bottom: 20px;
+  }
+
+  .mainHeading {
+    font-size: 1.9rem;
+  }
+
+  .description {
+    font-size: 0.95rem;
+  }
+
+  .formContainer {
+    padding: 25px 20px;
+  }
+
+  .formHeading {
+    font-size: 1.35rem;
+    margin-bottom: 20px;
+  }
+
+  .input,
+  .select,
+  .phoneInput {
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+
+  .countryCodeDisplay {
+    width: 65px;
+    padding: 14px 6px;
+    font-size: 0.9rem;
+  }
+
+  .submitButton {
+    padding: 15px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Landscape mode adjustments for mobile */
+@media (max-width: 900px) and (orientation: landscape) {
+  .landingPage {
+    padding: 20px 15px;
+  }
+  
+  .pageTitle {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+  }
+
+  .contentRow {
+    gap: 20px;
+    /* Allow columns to sit side-by-side if there's space */
+    flex-direction: row; 
+    align-items: flex-start;
+  }
+
+  .mainHeading {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  .description {
+    font-size: 0.9rem;
+  }
+
+  .formContainer {
+    padding: 20px;
+  }
+
+  .formHeading {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+  
+  /* Make form rows side-by-side again in landscape */
+  .formRow {
+    flex-direction: row;
+    gap: 15px;
+    margin-bottom: 15px;
   }
 }

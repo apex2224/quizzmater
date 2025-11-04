@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from './BSCIT.module.css'; 
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Updated quizData with 10 questions
 const quizData = [
   {
     question: "In database management, what does 'ACID' stand for?",
@@ -52,8 +53,73 @@ const quizData = [
       "To manage client-side interactivity"
     ],
     correctAnswer: "To style and layout the visual presentation"
+  },
+  {
+    question: "Which sorting algorithm has the best average-case time complexity?",
+    options: [
+      "Bubble Sort",
+      "Insertion Sort",
+      "Merge Sort",
+      "Selection Sort"
+    ],
+    correctAnswer: "Merge Sort"
+  },
+  {
+    question: "What does SQL stand for?",
+    options: [
+      "Structured Query Language",
+      "Simple Question Language",
+      "System Queue Logic",
+      "Standard Query List"
+    ],
+    correctAnswer: "Structured Query Language"
+  },
+  {
+    question: "In networking, what is the default port number for HTTP?",
+    options: [
+      "21",
+      "80",
+      "443",
+      "8080"
+    ],
+    correctAnswer: "80"
+  },
+  {
+    question: "Which of these is NOT a JavaScript data type?",
+    options: [
+      "String",
+      "Boolean",
+      "Character",
+      "Number"
+    ],
+    correctAnswer: "Character"
+  },
+  {
+    question: "What does API stand for in software development?",
+    options: [
+      "Advanced Programming Interface",
+      "Application Programming Interface",
+      "Automated Process Integration",
+      "Application Process Interaction"
+    ],
+    correctAnswer: "Application Programming Interface"
   }
 ];
+
+// Score code mapping (4-digit codes for each score 0-10)
+const scoreCodeMap = {
+  0: "1024",
+  1: "2048",
+  2: "3072",
+  3: "4096",
+  4: "5120",
+  5: "6144",
+  6: "7168",
+  7: "8192",
+  8: "9216",
+  9: "9999",
+  10: "1234"
+};
 
 const BSCIT = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -157,40 +223,30 @@ const BSCIT = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              className={styles.resultsContainer}
             >
-              <h2 className={styles.resultsTitle}>Quiz Completed!</h2>
-              <p className={styles.resultsText}>
-                You scored {answers.score} out of {totalQuestions}
-              </p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className={styles.congratsIcon}
+              >
+                🎉
+              </motion.div>
+              <h2 className={styles.resultsTitle}>Congratulations!</h2>
+              <p className={styles.congratsText}>You Win!</p>
               
-              <div className={styles.resultsBreakdown}>
-                {quizData.map((question, index) => {
-                  const userAnswer = answers[index];
-                  const isCorrect = userAnswer === question.correctAnswer;
-                  return (
-                    <div key={index} className={styles.resultItem}>
-                      <p className={styles.resultQuestion}>
-                        {index + 1}. {question.question}
-                      </p>
-                      <p className={`${styles.resultAnswer} ${isCorrect ? styles.correct : styles.incorrect}`}>
-                        Your answer: {userAnswer || "No answer"}
-                      </p>
-                      {!isCorrect && (
-                        <p className={`${styles.resultAnswer} ${styles.correct}`}>
-                          Correct answer: {question.correctAnswer}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className={styles.codeDisplay}>
+                <p className={styles.codeLabel}>Your Code:</p>
+                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '1rem' }}
+                style={{ width: '100%', marginTop: '2rem' }}
               >
-                Try Again
+                Thank You
               </button>
             </motion.div>
           ) : (
@@ -243,7 +299,6 @@ const BSCIT = () => {
                     animate="shake"
                   >
                     {error}
-                  {/* THIS WAS THE LINE WITH THE TYPO. IT IS NOW FIXED. */}
                   </motion.p>
                 )}
               </AnimatePresence>
