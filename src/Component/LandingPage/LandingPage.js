@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LandingPage.module.css";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "../Firebase/firebaseConfig"; // adjust path if needed
+
 import {
   Code,
   Cpu,
@@ -146,36 +149,42 @@ const LandingPage = () => {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Re-run validation on submit for safety
     if (!validateIndianMobile(phone)) {
       setPhoneError("Please enter a valid 10-digit mobile number");
       return;
     }
 
     if (!isFormValid()) {
-      // This case should be rare since button is disabled, but good to have
       console.error("Form is invalid");
       return;
     }
 
-    // Form submission logic
-    const countryCode = "+91"; // No need for state
-    console.log({
-      name: userName,
-      email: userEmail,
-      department: selectedDepartment,
-      year: selectedYear,
-      phone: phone,
-      countryCode: countryCode,
-    });
-    console.log("Form submitted successfully");
+    try {
+      const userDetails = {
+        name: userName,
+        email: userEmail,
+        department: selectedDepartment,
+        year: selectedYear,
+        phone: phone,
+        countryCode: "+91",
+        submittedAt: Timestamp.now(),
+      };
 
-    // --- REFACTOR 4: Simplified navigation using data map ---
-    const quizPath = quizPaths[selectedDepartment] || "/";
-    navigate(quizPath);
+      // ✅ Add data to Firestore collection "participants"
+      await addDoc(collection(db, "participants"), userDetails);
+
+      console.log("✅ User data stored successfully:", userDetails);
+
+      // After saving, redirect to quiz page
+      const quizPath = quizPaths[selectedDepartment] || "/";
+      navigate(quizPath);
+    } catch (error) {
+      console.error("❌ Error saving data to Firestore:", error);
+      alert("Something went wrong while saving your details!");
+    }
   };
 
   return (

@@ -212,6 +212,13 @@
   font-family: 'Courier New', monospace;
 }
 
+.loadingSpinner {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .quizContainer {

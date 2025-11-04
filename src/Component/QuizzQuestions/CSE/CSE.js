@@ -1,184 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 // 1. IMPORT THE NEW CSS MODULE
-import styles from './CSE.module.css';
-import { motion, AnimatePresence } from 'framer-motion';
+import { csedata1 } from "./csedata1";
+import { csedata2 } from "./csedata2";
+import { csedata3 } from "./csedata3";
 
-// 2. UPDATED quizData FOR CSE - 10 Questions
-const quizData = [
-  {
-    question: "What does 'SQL' stand for?",
-    options: [
-      "Structured Query Language",
-      "Simple Query Language",
-      "Scripted Query Logic",
-      "System Query Language"
-    ],
-    correctAnswer: "Structured Query Language"
-  },
-  {
-    question: "Which data structure operates on the 'Last-In, First-Out' (LIFO) principle?",
-    options: [
-      "Queue",
-      "Stack",
-      "Linked List",
-      "Tree"
-    ],
-    correctAnswer: "Stack"
-  },
-  {
-    question: "What is the time complexity of a successful binary search algorithm?",
-    options: [
-      "O(n)",
-      "O(n^2)",
-      "O(log n)",
-      "O(1)"
-    ],
-    correctAnswer: "O(log n)"
-  },
-  {
-    question: "In Object-Oriented Programming, what is 'polymorphism'?",
-    options: [
-      "Hiding complex implementation details",
-      "The ability of one class to inherit properties from another",
-      "The ability of an object to take on many forms",
-      "Binding data and methods into a single unit"
-    ],
-    correctAnswer: "The ability of an object to take on many forms"
-  },
-  {
-    question: "Which of these is NOT a core component of an Operating System?",
-    options: [
-      "Kernel",
-      "File System",
-      "Compiler",
-      "Process Management"
-    ],
-    correctAnswer: "Compiler"
-  },
-  {
-    question: "What is the main purpose of a compiler?",
-    options: [
-      "To execute programs line by line",
-      "To translate high-level code to machine code",
-      "To manage memory allocation",
-      "To debug programs"
-    ],
-    correctAnswer: "To translate high-level code to machine code"
-  },
-  {
-    question: "In networking, what does TCP stand for?",
-    options: [
-      "Transfer Control Protocol",
-      "Transmission Control Protocol",
-      "Transport Communication Protocol",
-      "Technical Control Process"
-    ],
-    correctAnswer: "Transmission Control Protocol"
-  },
-  {
-    question: "Which sorting algorithm is generally the fastest for large datasets?",
-    options: [
-      "Bubble Sort",
-      "Selection Sort",
-      "Quick Sort",
-      "Insertion Sort"
-    ],
-    correctAnswer: "Quick Sort"
-  },
-  {
-    question: "What does RAM stand for?",
-    options: [
-      "Read Access Memory",
-      "Random Access Memory",
-      "Rapid Access Module",
-      "Real Address Memory"
-    ],
-    correctAnswer: "Random Access Memory"
-  },
-  {
-    question: "In databases, what is a primary key?",
-    options: [
-      "A key used to encrypt data",
-      "A unique identifier for a record",
-      "The first column in a table",
-      "A foreign key reference"
-    ],
-    correctAnswer: "A unique identifier for a record"
+import styles from "./CSE.module.css";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Use the scoreCodeMap from csedata1 (they're identical in all files)
+import { getCodeForScore } from "./csedata1";
+
+// Fisher-Yates shuffle algorithm to randomize the quiz data
+const shuffleArray = (array) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-];
-
-// Score code mapping (4-digit codes for each score 0-10)
-const scoreCodeMap = {
-  0: "1024",
-  1: "2048",
-  2: "3072",
-  3: "4096",
-  4: "5120",
-  5: "6144",
-  6: "7168",
-  7: "8192",
-  8: "9216",
-  9: "9999",
-  10: "1234"
+  return shuffled;
 };
+
+// Function to get a random subset of questions
+const getRandomQuestions = (array, count = 10) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, count);
+};
+
+// Combine all the imported data into one quizData array
+const allQuizData = [...csedata1, ...csedata2, ...csedata3];
 
 // 3. RENAMED THE COMPONENT
 const CSE = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
-  const [error, setError] = useState('');
-  const [direction, setDirection] = useState('forward');
+  const [error, setError] = useState("");
+  const [direction, setDirection] = useState("forward");
+  const [quizData, setQuizData] = useState([]); // Store the current quiz data in state
 
   const totalQuestions = quizData.length;
 
   const questionVariants = {
     hidden: (direction) => ({
       opacity: 0,
-      x: direction === 'forward' ? 100 : -100
+      x: direction === "forward" ? 100 : -100,
     }),
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.3, ease: 'easeInOut' }
+      transition: { duration: 0.3, ease: "easeInOut" },
     },
     exit: (direction) => ({
       opacity: 0,
-      x: direction === 'forward' ? -100 : 100,
-      transition: { duration: 0.3, ease: 'easeInOut' }
-    })
+      x: direction === "forward" ? -100 : 100,
+      transition: { duration: 0.3, ease: "easeInOut" },
+    }),
   };
-  
+
   const errorShake = {
     shake: {
       x: [0, -8, 8, -8, 8, 0],
-      transition: { duration: 0.4 }
-    }
+      transition: { duration: 0.4 },
+    },
   };
+
+  // Set 10 random questions on component mount or restart
+  useEffect(() => {
+    setQuizData(getRandomQuestions(allQuizData, 10));
+  }, []);
 
   const handleOptionSelect = (option) => {
     setAnswers({
       ...answers,
-      [currentQuestion]: option
+      [currentQuestion]: option,
     });
-    setError('');
+    setError("");
   };
 
   const handleNext = () => {
     if (answers[currentQuestion] === undefined) {
-      setError('Please select an answer before proceeding.');
+      setError("Please select an answer before proceeding.");
       return;
     }
-    setError('');
-    setDirection('forward');
+    setError("");
+    setDirection("forward");
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
   const handleBack = () => {
-    setError('');
-    setDirection('backward');
+    setError("");
+    setDirection("backward");
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
     }
@@ -186,7 +103,7 @@ const CSE = () => {
 
   const handleSubmit = () => {
     if (answers[currentQuestion] === undefined) {
-      setError('Please select an answer to submit the quiz.');
+      setError("Please select an answer to submit the quiz.");
       return;
     }
     let score = 0;
@@ -200,14 +117,27 @@ const CSE = () => {
   };
 
   const handleRestart = () => {
+    // Set 10 new random questions when restarting the quiz
+    setQuizData(getRandomQuestions(allQuizData, 10));
     setCurrentQuestion(0);
     setAnswers({});
     setShowResults(false);
-    setError('');
-    setDirection('forward');
+    setError("");
+    setDirection("forward");
   };
 
   const progressPercent = ((currentQuestion + 1) / totalQuestions) * 100;
+
+  // Don't render anything until quizData is loaded
+  if (quizData.length === 0) {
+    return (
+      <div className={styles.quizContainer}>
+        <div className={styles.quizCard}>
+          <div className={styles.loadingSpinner}>Loading quiz...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.quizContainer}>
@@ -237,16 +167,18 @@ const CSE = () => {
               </motion.div>
               <h2 className={styles.resultsTitle}>Congratulations!</h2>
               <p className={styles.congratsText}>You Win!</p>
-              
+
               <div className={styles.codeDisplay}>
                 <p className={styles.codeLabel}>Your Code:</p>
-                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
+                <p className={styles.codeValue}>
+                  {getCodeForScore(answers.score)}
+                </p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '2rem' }}
+                style={{ width: "100%", marginTop: "2rem" }}
               >
                 Thank You
               </button>
@@ -265,7 +197,7 @@ const CSE = () => {
               <div className={styles.questionProgress}>
                 Question {currentQuestion + 1} of {totalQuestions}
               </div>
-              
+
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={currentQuestion}
@@ -276,13 +208,17 @@ const CSE = () => {
                   exit="exit"
                   className={styles.questionWrapper}
                 >
-                  <h3 className={styles.questionText}>{quizData[currentQuestion].question}</h3>
+                  <h3 className={styles.questionText}>
+                    {quizData[currentQuestion].question}
+                  </h3>
                   <div className={styles.optionsContainer}>
                     {quizData[currentQuestion].options.map((option, index) => (
                       <button
                         key={index}
                         className={`${styles.optionButton} ${
-                          answers[currentQuestion] === option ? styles.selectedOption : ''
+                          answers[currentQuestion] === option
+                            ? styles.selectedOption
+                            : ""
                         }`}
                         onClick={() => handleOptionSelect(option)}
                       >
@@ -292,7 +228,7 @@ const CSE = () => {
                   </div>
                 </motion.div>
               </AnimatePresence>
-              
+
               <AnimatePresence>
                 {error && (
                   <motion.p
@@ -316,7 +252,10 @@ const CSE = () => {
                     Next
                   </button>
                 ) : (
-                  <button onClick={handleSubmit} className={styles.submitButton}>
+                  <button
+                    onClick={handleSubmit}
+                    className={styles.submitButton}
+                  >
                     Submit
                   </button>
                 )}
