@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import styles from './BEE.module.css'; 
 import { motion, AnimatePresence } from 'framer-motion';
 
-// 2. UPDATED quizData FOR BEE
+// 2. UPDATED quizData FOR BEE - 10 Questions
 const quizData = [
   {
     question: "What does Kirchhoff's Current Law (KCL) state?",
@@ -54,8 +54,73 @@ const quizData = [
       "Multiplexer (MUX)"
     ],
     correctAnswer: "ADC (Analog-to-Digital Converter)"
+  },
+  {
+    question: "What is the unit of electrical resistance?",
+    options: [
+      "Ampere",
+      "Ohm",
+      "Volt",
+      "Watt"
+    ],
+    correctAnswer: "Ohm"
+  },
+  {
+    question: "Which law states that the induced EMF in a circuit is proportional to the rate of change of magnetic flux?",
+    options: [
+      "Ohm's Law",
+      "Faraday's Law",
+      "Lenz's Law",
+      "Ampere's Law"
+    ],
+    correctAnswer: "Faraday's Law"
+  },
+  {
+    question: "What type of circuit element stores energy in a magnetic field?",
+    options: [
+      "Capacitor",
+      "Resistor",
+      "Inductor",
+      "Diode"
+    ],
+    correctAnswer: "Inductor"
+  },
+  {
+    question: "In power systems, what does 'power factor' represent?",
+    options: [
+      "The ratio of real power to apparent power",
+      "The total power consumed",
+      "The voltage drop across a line",
+      "The frequency of the AC supply"
+    ],
+    correctAnswer: "The ratio of real power to apparent power"
+  },
+  {
+    question: "What is the primary advantage of a DC motor over an AC motor?",
+    options: [
+      "Lower maintenance requirements",
+      "Better speed control",
+      "Higher efficiency",
+      "Simpler construction"
+    ],
+    correctAnswer: "Better speed control"
   }
 ];
+
+// Score code mapping (4-digit codes for each score 0-10)
+const scoreCodeMap = {
+  0: "1024",
+  1: "2048",
+  2: "3072",
+  3: "4096",
+  4: "5120",
+  5: "6144",
+  6: "7168",
+  7: "8192",
+  8: "9216",
+  9: "9999",
+  10: "1234"
+};
 
 // 3. RENAMED THE COMPONENT
 const BEE = () => {
@@ -160,40 +225,30 @@ const BEE = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              className={styles.resultsContainer}
             >
-              <h2 className={styles.resultsTitle}>Quiz Completed!</h2>
-              <p className={styles.resultsText}>
-                You scored {answers.score} out of {totalQuestions}
-              </p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className={styles.congratsIcon}
+              >
+                🎉
+              </motion.div>
+              <h2 className={styles.resultsTitle}>Congratulations!</h2>
+              <p className={styles.congratsText}>You Win!</p>
               
-              <div className={styles.resultsBreakdown}>
-                {quizData.map((question, index) => {
-                  const userAnswer = answers[index];
-                  const isCorrect = userAnswer === question.correctAnswer;
-                  return (
-                    <div key={index} className={styles.resultItem}>
-                      <p className={styles.resultQuestion}>
-                        {index + 1}. {question.question}
-                      </p>
-                      <p className={`${styles.resultAnswer} ${isCorrect ? styles.correct : styles.incorrect}`}>
-                        Your answer: {userAnswer || "No answer"}
-                      </p>
-                      {!isCorrect && (
-                        <p className={`${styles.resultAnswer} ${styles.correct}`}>
-                          Correct answer: {question.correctAnswer}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className={styles.codeDisplay}>
+                <p className={styles.codeLabel}>Your Code:</p>
+                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '1rem' }}
+                style={{ width: '100%', marginTop: '2rem' }}
               >
-                Try Again
+                Thank You
               </button>
             </motion.div>
           ) : (

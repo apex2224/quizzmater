@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import styles from './ECE.module.css'; 
 import { motion, AnimatePresence } from 'framer-motion';
 
-// 2. UPDATED quizData FOR ECE
+// 2. UPDATED quizData FOR ECE - 10 Questions
 const quizData = [
   {
     question: "What is Ohm's Law?",
@@ -54,11 +54,76 @@ const quizData = [
       "Broadband Joint Terminal"
     ],
     correctAnswer: "Bipolar Junction Transistor"
+  },
+  {
+    question: "What is the principle behind a transformer's operation?",
+    options: [
+      "Electrostatic induction",
+      "Electromagnetic induction",
+      "Piezoelectric effect",
+      "Thermoelectric effect"
+    ],
+    correctAnswer: "Electromagnetic induction"
+  },
+  {
+    question: "Which modulation technique is most resistant to noise?",
+    options: [
+      "Amplitude Modulation (AM)",
+      "Frequency Modulation (FM)",
+      "Phase Modulation (PM)",
+      "Pulse Modulation"
+    ],
+    correctAnswer: "Frequency Modulation (FM)"
+  },
+  {
+    question: "What does 'IC' stand for in electronics?",
+    options: [
+      "Internal Circuit",
+      "Integrated Circuit",
+      "Insulated Conductor",
+      "Impedance Control"
+    ],
+    correctAnswer: "Integrated Circuit"
+  },
+  {
+    question: "In a diode, current flows from:",
+    options: [
+      "Cathode to Anode",
+      "Anode to Cathode",
+      "Both directions equally",
+      "Neither direction"
+    ],
+    correctAnswer: "Anode to Cathode"
+  },
+  {
+    question: "What is the bandwidth of a signal?",
+    options: [
+      "The maximum frequency of the signal",
+      "The difference between highest and lowest frequencies",
+      "The average frequency of the signal",
+      "The total power of the signal"
+    ],
+    correctAnswer: "The difference between highest and lowest frequencies"
   }
 ];
 
+// Score code mapping (4-digit codes for each score 0-10)
+const scoreCodeMap = {
+  0: "1024",
+  1: "2048",
+  2: "3072",
+  3: "4096",
+  4: "5120",
+  5: "6144",
+  6: "7168",
+  7: "8192",
+  8: "9216",
+  9: "9999",
+  10: "1234"
+};
+
 // 3. RENAMED THE COMPONENT
-const Ece = () => {
+const ECE = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
@@ -160,40 +225,30 @@ const Ece = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              className={styles.resultsContainer}
             >
-              <h2 className={styles.resultsTitle}>Quiz Completed!</h2>
-              <p className={styles.resultsText}>
-                You scored {answers.score} out of {totalQuestions}
-              </p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className={styles.congratsIcon}
+              >
+                🎉
+              </motion.div>
+              <h2 className={styles.resultsTitle}>Congratulations!</h2>
+              <p className={styles.congratsText}>You Win!</p>
               
-              <div className={styles.resultsBreakdown}>
-                {quizData.map((question, index) => {
-                  const userAnswer = answers[index];
-                  const isCorrect = userAnswer === question.correctAnswer;
-                  return (
-                    <div key={index} className={styles.resultItem}>
-                      <p className={styles.resultQuestion}>
-                        {index + 1}. {question.question}
-                      </p>
-                      <p className={`${styles.resultAnswer} ${isCorrect ? styles.correct : styles.incorrect}`}>
-                        Your answer: {userAnswer || "No answer"}
-                      </p>
-                      {!isCorrect && (
-                        <p className={`${styles.resultAnswer} ${styles.correct}`}>
-                          Correct answer: {question.correctAnswer}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className={styles.codeDisplay}>
+                <p className={styles.codeLabel}>Your Code:</p>
+                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '1rem' }}
+                style={{ width: '100%', marginTop: '2rem' }}
               >
-                Try Again
+                Thank You
               </button>
             </motion.div>
           ) : (
@@ -275,4 +330,4 @@ const Ece = () => {
 };
 
 // 4. EXPORT THE NEW COMPONENT
-export default Ece;
+export default ECE;

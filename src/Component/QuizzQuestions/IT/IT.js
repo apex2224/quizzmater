@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import styles from './IT.module.css'; 
 import { motion, AnimatePresence } from 'framer-motion';
 
-// 2. UPDATED quizData FOR IT
+// 2. UPDATED quizData FOR IT - 10 Questions
 const quizData = [
   {
     question: "What does 'LAN' stand for in networking?",
@@ -54,8 +54,73 @@ const quizData = [
       "Information Processing"
     ],
     correctAnswer: "Internet Protocol"
+  },
+  {
+    question: "What does 'VPN' stand for?",
+    options: [
+      "Virtual Private Network",
+      "Very Private Network",
+      "Virtual Public Network",
+      "Verified Private Network"
+    ],
+    correctAnswer: "Virtual Private Network"
+  },
+  {
+    question: "Which protocol is used to send emails?",
+    options: [
+      "HTTP",
+      "FTP",
+      "SMTP",
+      "SSH"
+    ],
+    correctAnswer: "SMTP"
+  },
+  {
+    question: "What does 'DNS' stand for?",
+    options: [
+      "Domain Name System",
+      "Digital Network Service",
+      "Data Network Storage",
+      "Domain Network Server"
+    ],
+    correctAnswer: "Domain Name System"
+  },
+  {
+    question: "What is the purpose of an operating system?",
+    options: [
+      "To connect to the internet",
+      "To manage computer hardware and software",
+      "To create documents",
+      "To protect against viruses"
+    ],
+    correctAnswer: "To manage computer hardware and software"
+  },
+  {
+    question: "What does 'HTML' stand for?",
+    options: [
+      "High Text Markup Language",
+      "Hyperlinks and Text Markup Language",
+      "HyperText Markup Language",
+      "Home Tool Markup Language"
+    ],
+    correctAnswer: "HyperText Markup Language"
   }
 ];
+
+// Score code mapping (4-digit codes for each score 0-10)
+const scoreCodeMap = {
+  0: "1024",
+  1: "2048",
+  2: "3072",
+  3: "4096",
+  4: "5120",
+  5: "6144",
+  6: "7168",
+  7: "8192",
+  8: "9216",
+  9: "9999",
+  10: "1234"
+};
 
 // 3. RENAMED THE COMPONENT
 const IT = () => {
@@ -160,40 +225,30 @@ const IT = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              className={styles.resultsContainer}
             >
-              <h2 className={styles.resultsTitle}>Quiz Completed!</h2>
-              <p className={styles.resultsText}>
-                You scored {answers.score} out of {totalQuestions}
-              </p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className={styles.congratsIcon}
+              >
+                🎉
+              </motion.div>
+              <h2 className={styles.resultsTitle}>Congratulations!</h2>
+              <p className={styles.congratsText}>You Win!</p>
               
-              <div className={styles.resultsBreakdown}>
-                {quizData.map((question, index) => {
-                  const userAnswer = answers[index];
-                  const isCorrect = userAnswer === question.correctAnswer;
-                  return (
-                    <div key={index} className={styles.resultItem}>
-                      <p className={styles.resultQuestion}>
-                        {index + 1}. {question.question}
-                      </p>
-                      <p className={`${styles.resultAnswer} ${isCorrect ? styles.correct : styles.incorrect}`}>
-                        Your answer: {userAnswer || "No answer"}
-                      </p>
-                      {!isCorrect && (
-                        <p className={`${styles.resultAnswer} ${styles.correct}`}>
-                          Correct answer: {question.correctAnswer}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className={styles.codeDisplay}>
+                <p className={styles.codeLabel}>Your Code:</p>
+                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '1rem' }}
+                style={{ width: '100%', marginTop: '2rem' }}
               >
-                Try Again
+                Thank You
               </button>
             </motion.div>
           ) : (

@@ -3,6 +3,7 @@ import styles from './DigitalMarketing.module.css';
 // Import framer-motion for animations
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Updated quizData with 10 questions
 const quizData = [
   {
     question: "What does 'SEO' stand for?",
@@ -53,8 +54,73 @@ const quizData = [
       "Click-Through Rate (CTR)"
     ],
     correctAnswer: "Click-Through Rate (CTR)"
+  },
+  {
+    question: "What does 'CTA' stand for in marketing?",
+    options: [
+      "Call To Action",
+      "Customer Target Audience",
+      "Content Type Analysis",
+      "Click Through Analytics"
+    ],
+    correctAnswer: "Call To Action"
+  },
+  {
+    question: "Which platform is primarily used for B2B marketing?",
+    options: [
+      "TikTok",
+      "Snapchat",
+      "LinkedIn",
+      "Pinterest"
+    ],
+    correctAnswer: "LinkedIn"
+  },
+  {
+    question: "What is 'ROI' in digital marketing?",
+    options: [
+      "Return On Investment",
+      "Rate Of Interaction",
+      "Revenue Output Index",
+      "Reach Optimization Indicator"
+    ],
+    correctAnswer: "Return On Investment"
+  },
+  {
+    question: "Which type of content is most effective for engagement on social media?",
+    options: [
+      "Text-only posts",
+      "Video content",
+      "Long-form articles",
+      "Spreadsheets"
+    ],
+    correctAnswer: "Video content"
+  },
+  {
+    question: "What is the purpose of A/B testing in digital marketing?",
+    options: [
+      "To compare two versions to see which performs better",
+      "To test website loading speed",
+      "To check for broken links",
+      "To analyze competitor strategies"
+    ],
+    correctAnswer: "To compare two versions to see which performs better"
   }
 ];
+
+// Score code mapping (4-digit codes for each score 0-10)
+const scoreCodeMap = {
+  0: "1024",
+  1: "2048",
+  2: "3072",
+  3: "4096",
+  4: "5120",
+  5: "6144",
+  6: "7168",
+  7: "8192",
+  8: "9216",
+  9: "9999",
+  10: "1234"
+};
 
 const DigitalMarketing = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -162,41 +228,30 @@ const DigitalMarketing = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              className={styles.resultsContainer}
             >
-              <h2 className={styles.resultsTitle}>Quiz Completed!</h2>
-              <p className={styles.resultsText}>
-                You scored {answers.score} out of {totalQuestions}
-              </p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className={styles.congratsIcon}
+              >
+                🎉
+              </motion.div>
+              <h2 className={styles.resultsTitle}>Congratulations!</h2>
+              <p className={styles.congratsText}>You Win!</p>
               
-              {/* 3. Detailed Results Breakdown */}
-              <div className={styles.resultsBreakdown}>
-                {quizData.map((question, index) => {
-                  const userAnswer = answers[index];
-                  const isCorrect = userAnswer === question.correctAnswer;
-                  return (
-                    <div key={index} className={styles.resultItem}>
-                      <p className={styles.resultQuestion}>
-                        {index + 1}. {question.question}
-                      </p>
-                      <p className={`${styles.resultAnswer} ${isCorrect ? styles.correct : styles.incorrect}`}>
-                        Your answer: {userAnswer || "No answer"}
-                      </p>
-                      {!isCorrect && (
-                        <p className={`${styles.resultAnswer} ${styles.correct}`}>
-                          Correct answer: {question.correctAnswer}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className={styles.codeDisplay}>
+                <p className={styles.codeLabel}>Your Code:</p>
+                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '1rem' }}
+                style={{ width: '100%', marginTop: '2rem' }}
               >
-                Try Again
+                Thank You
               </button>
             </motion.div>
           ) : (
