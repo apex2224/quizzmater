@@ -1,134 +1,72 @@
-import React, { useState } from 'react';
-import styles from './DigitalMarketing.module.css';
-// Import framer-motion for animations
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+// 1. IMPORT THE NEW CSS MODULE
+import marketingData from "./MarketingData";
 
-// Updated quizData with 10 questions
-const quizData = [
-  {
-    question: "What does 'SEO' stand for?",
-    options: [
-      "Search Engine Optimization",
-      "Social Engagement optimization",
-      "Site Engine Operations",
-      "Search Entry Object"
-    ],
-    correctAnswer: "Search Engine Optimization"
-  },
-  {
-    question: "Which of the following is NOT a social media platform?",
-    options: [
-      "Facebook",
-      "LinkedIn",
-      "Google Analytics",
-      "Instagram"
-    ],
-    correctAnswer: "Google Analytics"
-  },
-  {
-    question: "What is 'PPC' in digital marketing?",
-    options: [
-      "Product Placement Cost",
-      "Pay-Per-Click",
-      "Public-Private Co-operation",
-      "Page Post Content"
-    ],
-    correctAnswer: "Pay-Per-Click"
-  },
-  {
-    question: "What is the primary goal of Content Marketing?",
-    options: [
-      "To attract and retain a clearly defined audience",
-      "To sell products directly",
-      "To increase website server speed",
-      "To design logos"
-    ],
-    correctAnswer: "To attract and retain a clearly defined audience"
-  },
-  {
-    question: "Which metric measures how many users clicked on your ad?",
-    options: [
-      "Impressions",
-      "Reach",
-      "Conversion Rate",
-      "Click-Through Rate (CTR)"
-    ],
-    correctAnswer: "Click-Through Rate (CTR)"
-  },
-  {
-    question: "What does 'CTA' stand for in marketing?",
-    options: [
-      "Call To Action",
-      "Customer Target Audience",
-      "Content Type Analysis",
-      "Click Through Analytics"
-    ],
-    correctAnswer: "Call To Action"
-  },
-  {
-    question: "Which platform is primarily used for B2B marketing?",
-    options: [
-      "TikTok",
-      "Snapchat",
-      "LinkedIn",
-      "Pinterest"
-    ],
-    correctAnswer: "LinkedIn"
-  },
-  {
-    question: "What is 'ROI' in digital marketing?",
-    options: [
-      "Return On Investment",
-      "Rate Of Interaction",
-      "Revenue Output Index",
-      "Reach Optimization Indicator"
-    ],
-    correctAnswer: "Return On Investment"
-  },
-  {
-    question: "Which type of content is most effective for engagement on social media?",
-    options: [
-      "Text-only posts",
-      "Video content",
-      "Long-form articles",
-      "Spreadsheets"
-    ],
-    correctAnswer: "Video content"
-  },
-  {
-    question: "What is the purpose of A/B testing in digital marketing?",
-    options: [
-      "To compare two versions to see which performs better",
-      "To test website loading speed",
-      "To check for broken links",
-      "To analyze competitor strategies"
-    ],
-    correctAnswer: "To compare two versions to see which performs better"
+import styles from "./DigitalMarketing.module.css";
+import { motion, AnimatePresence } from "framer-motion";
+
+
+
+// Function to get a random subset of questions by difficulty levels
+const getRandomQuestions = (data, count = 12) => {
+  // Separate questions by difficulty level
+  const easyQuestions = data.filter((q) => q.level === "easy");
+  const mediumQuestions = data.filter((q) => q.level === "medium");
+  const hardQuestions = data.filter((q) => q.level === "hard");
+
+  // Select 4 random easy questions
+  const shuffledEasy = [...easyQuestions];
+  for (let i = shuffledEasy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledEasy[i], shuffledEasy[j]] = [shuffledEasy[j], shuffledEasy[i]];
   }
-];
+  const selectedEasy = shuffledEasy.slice(0, 4);
 
-// Score code mapping (4-digit codes for each score 0-10)
-const scoreCodeMap = {
-  0: "1024",
-  1: "2048",
-  2: "3072",
-  3: "4096",
-  4: "5120",
-  5: "6144",
-  6: "7168",
-  7: "8192",
-  8: "9216",
-  9: "9999",
-  10: "1234"
+  // Combine medium and hard questions
+  const mediumAndHard = [...mediumQuestions, ...hardQuestions];
+
+  // Shuffle medium and hard questions
+  const shuffledMediumHard = [...mediumAndHard];
+  for (let i = shuffledMediumHard.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledMediumHard[i], shuffledMediumHard[j]] = [
+      shuffledMediumHard[j],
+      shuffledMediumHard[i],
+    ];
+  }
+
+  // Select remaining questions to make up 12 total (8 in this case)
+  const selectedMediumHard = shuffledMediumHard.slice(0, count - 4);
+
+  // Combine and shuffle all selected questions
+  const allSelected = [...selectedEasy, ...selectedMediumHard];
+  for (let i = allSelected.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allSelected[i], allSelected[j]] = [allSelected[j], allSelected[i]];
+  }
+
+  return allSelected;
 };
 
+// Use the marketingData directly
+const allQuizData = marketingData;
+
 const DigitalMarketing = () => {
+  const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
-  const [error, setError] = useState('');
-  // New state to track animation direction
-  const [direction, setDirection] = useState('forward');
+  const [error, setError] = useState("");
+  const [direction, setDirection] = useState("forward");
+  const [quizData, setQuizData] = useState([]); // Store the current quiz data in state
+  const [timeLeft, setTimeLeft] = useState(10); // Timer for each question
+  const [isDisqualified, setIsDisqualified] = useState(false); // Track if user is disqualified
+
+  // --- FIXED ERROR ---
+  // The following lines were duplicates and have been removed.
+  // const [direction, setDirection] = useState("forward");
+  // const [quizData, setQuizData] = useState([]); // Store the current quiz data in state
 
   const totalQuestions = quizData.length;
 
@@ -136,51 +74,100 @@ const DigitalMarketing = () => {
   const questionVariants = {
     hidden: (direction) => ({
       opacity: 0,
-      x: direction === 'forward' ? 100 : -100
+      x: direction === "forward" ? 100 : -100,
     }),
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.3, ease: 'easeInOut' }
+      transition: { duration: 0.3, ease: "easeInOut" },
     },
     exit: (direction) => ({
       opacity: 0,
-      x: direction === 'forward' ? -100 : 100,
-      transition: { duration: 0.3, ease: 'easeInOut' }
-    })
+      x: direction === "forward" ? -100 : 100,
+      transition: { duration: 0.3, ease: "easeInOut" },
+    }),
   };
-  
+
   // Animation for the error message shake
   const errorShake = {
     shake: {
       x: [0, -8, 8, -8, 8, 0],
-      transition: { duration: 0.4 }
-    }
+      transition: { duration: 0.4 },
+    },
   };
+
+  // Timer effect for each question
+  useEffect(() => {
+    if (
+      quizData.length > 0 &&
+      currentQuestion < totalQuestions &&
+      !isDisqualified
+    ) {
+      // Reset timer when question changes
+      setTimeLeft(10);
+
+      // Start the timer
+      const timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timer);
+            // Check if no answer was selected
+            if (answers[currentQuestion] === undefined) {
+              setIsDisqualified(true);
+            }
+            return 0;
+          }
+          // Stop timer if answer is selected
+          if (answers[currentQuestion] !== undefined) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+
+      // Clean up interval on unmount or when dependencies change
+      return () => clearInterval(timer);
+    }
+  }, [
+    currentQuestion,
+    quizData,
+    answers,
+    isDisqualified,
+    totalQuestions,
+  ]); // Added totalQuestions to dependency array
+
+  // Set 12 random questions with 4 easy and 8 mixed medium/hard on component mount or restart
+  useEffect(() => {
+    setQuizData(getRandomQuestions(allQuizData, 12));
+  }, []);
 
   const handleOptionSelect = (option) => {
     setAnswers({
       ...answers,
-      [currentQuestion]: option
+      [currentQuestion]: option,
     });
-    setError('');
+    setError("");
+
+    // Clear timer when user selects an answer
+    setTimeLeft(0);
   };
 
   const handleNext = () => {
     if (answers[currentQuestion] === undefined) {
-      setError('Please select an answer before proceeding.');
+      setError("Please select an answer before proceeding.");
       return;
     }
-    setError('');
-    setDirection('forward'); // Set direction for animation
+    setError("");
+    setDirection("forward"); // Set direction for animation
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
   const handleBack = () => {
-    setError('');
-    setDirection('backward'); // Set direction for animation
+    setError("");
+    setDirection("backward"); // Set direction for animation
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
     }
@@ -188,12 +175,13 @@ const DigitalMarketing = () => {
 
   const handleSubmit = () => {
     if (answers[currentQuestion] === undefined) {
-      setError('Please select an answer to submit the quiz.');
+      setError("Please select an answer to submit the quiz.");
       return;
     }
     let score = 0;
     for (let i = 0; i < totalQuestions; i++) {
-      if (answers[i] === quizData[i].correctAnswer) {
+      if (answers[i] === quizData[i].answer) {
+        // Fixed: using 'answer' field instead of 'correctAnswer'
         score++;
       }
     }
@@ -202,14 +190,60 @@ const DigitalMarketing = () => {
   };
 
   const handleRestart = () => {
-    setCurrentQuestion(0);
-    setAnswers({});
-    setShowResults(false);
-    setError('');
-    setDirection('forward');
+    navigate("/");
   };
 
-  const progressPercent = ((currentQuestion + 1) / totalQuestions) * 100;
+  // Handle disqualification
+  if (isDisqualified) {
+    return (
+      <div className={styles.quizContainer}>
+        <motion.div
+          className={styles.quizCard}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className={styles.resultsContainer}>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className={styles.congratsIcon}
+            >
+              😞
+            </motion.div>
+            <h2 className={styles.resultsTitle}>Disqualified</h2>
+            <p className={styles.congratsText}>
+              Time ran out before you made a selection.
+            </p>
+            <button
+              onClick={handleRestart}
+              className={styles.submitButton}
+              style={{ width: "100%", marginTop: "2rem" }}
+            >
+              Try Again
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Calculate progress percent
+  // Avoid division by zero if totalQuestions is not yet set
+  const progressPercent =
+    totalQuestions > 0 ? ((currentQuestion + 1) / totalQuestions) * 100 : 0;
+
+  // Don't render anything until quizData is loaded
+  if (quizData.length === 0) {
+    return (
+      <div className={styles.quizContainer}>
+        <div className={styles.quizCard}>
+          <div className={styles.loadingSpinner}>Loading quiz...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.quizContainer}>
@@ -240,16 +274,25 @@ const DigitalMarketing = () => {
               </motion.div>
               <h2 className={styles.resultsTitle}>Congratulations!</h2>
               <p className={styles.congratsText}>You Win!</p>
-              
+
               <div className={styles.codeDisplay}>
-                <p className={styles.codeLabel}>Your Code:</p>
-                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
+                <p className={styles.codeLabel}>Your Score:</p>
+                <p className={styles.codeValue}>
+                  {answers.score}/{quizData.length}
+                </p>
+                <p className={styles.scoreMessage}>
+                  {answers.score <= 3
+                    ? "Fair!"
+                    : answers.score <= 8
+                    ? "Good!"
+                    : "Superb!"}
+                </p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '2rem' }}
+                style={{ width: "100%", marginTop: "2rem" }}
               >
                 Thank You
               </button>
@@ -266,10 +309,16 @@ const DigitalMarketing = () => {
                   transition={{ duration: 0.5, ease: "easeOut" }}
                 />
               </div>
-              <div className={styles.questionProgress}>
-                Question {currentQuestion + 1} of {totalQuestions}
+              <div className={styles.questionHeader}>
+                <div className={styles.questionProgress}>
+                  Question {currentQuestion + 1} of {totalQuestions}
+                </div>
+                {/* Timer Display */}
+                <div className={styles.timer}>
+                  Time left: <strong>{timeLeft}s</strong>
+                </div>
               </div>
-              
+
               {/* AnimatePresence wraps the changing question */}
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
@@ -282,15 +331,21 @@ const DigitalMarketing = () => {
                   exit="exit"
                   className={styles.questionWrapper}
                 >
-                  <h3 className={styles.questionText}>{quizData[currentQuestion].question}</h3>
+                  <h3 className={styles.questionText}>
+                    {quizData[currentQuestion].question}
+                  </h3>
                   <div className={styles.optionsContainer}>
                     {quizData[currentQuestion].options.map((option, index) => (
                       <button
                         key={index}
                         className={`${styles.optionButton} ${
-                          answers[currentQuestion] === option ? styles.selectedOption : ''
+                          answers[currentQuestion] === option
+                            ? styles.selectedOption
+                            : ""
                         }`}
                         onClick={() => handleOptionSelect(option)}
+                        // Disable buttons if an answer is already selected for this question
+                        disabled={answers[currentQuestion] !== undefined}
                       >
                         {option}
                       </button>
@@ -298,7 +353,7 @@ const DigitalMarketing = () => {
                   </div>
                 </motion.div>
               </AnimatePresence>
-              
+
               {/* Animate the error message */}
               <AnimatePresence>
                 {error && (
@@ -323,7 +378,10 @@ const DigitalMarketing = () => {
                     Next
                   </button>
                 ) : (
-                  <button onClick={handleSubmit} className={styles.submitButton}>
+                  <button
+                    onClick={handleSubmit}
+                    className={styles.submitButton}
+                  >
                     Submit
                   </button>
                 )}

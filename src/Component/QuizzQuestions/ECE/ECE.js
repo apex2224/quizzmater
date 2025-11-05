@@ -1,184 +1,159 @@
-import React, { useState } from 'react';
-// 1. IMPORT THE NEW CSS MODULE
-import styles from './ECE.module.css'; 
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import ecedata from "./ECEDATA";
 
-// 2. UPDATED quizData FOR ECE - 10 Questions
-const quizData = [
-  {
-    question: "What is Ohm's Law?",
-    options: [
-      "V = IR",
-      "P = VI",
-      "V = I/R",
-      "F = ma"
-    ],
-    correctAnswer: "V = IR"
-  },
-  {
-    question: "Which of these is known as a 'universal' logic gate?",
-    options: [
-      "AND",
-      "OR",
-      "XOR",
-      "NAND"
-    ],
-    correctAnswer: "NAND"
-  },
-  {
-    question: "What does 'AM' stand for in communication systems?",
-    options: [
-      "Amplitude Modulation",
-      "Assigned Megahertz",
-      "Analog Mode",
-      "Automatic Messaging"
-    ],
-    correctAnswer: "Amplitude Modulation"
-  },
-  {
-    question: "What is the basic unit of electrical capacitance?",
-    options: [
-      "Henry",
-      "Ohm",
-      "Farad",
-      "Volt"
-    ],
-    correctAnswer: "Farad"
-  },
-  {
-    question: "What does 'BJT' stand for in electronics?",
-    options: [
-      "Basic Junction Test",
-      "Bipolar Junction Transistor",
-      "Binary Junction Transformer",
-      "Broadband Joint Terminal"
-    ],
-    correctAnswer: "Bipolar Junction Transistor"
-  },
-  {
-    question: "What is the principle behind a transformer's operation?",
-    options: [
-      "Electrostatic induction",
-      "Electromagnetic induction",
-      "Piezoelectric effect",
-      "Thermoelectric effect"
-    ],
-    correctAnswer: "Electromagnetic induction"
-  },
-  {
-    question: "Which modulation technique is most resistant to noise?",
-    options: [
-      "Amplitude Modulation (AM)",
-      "Frequency Modulation (FM)",
-      "Phase Modulation (PM)",
-      "Pulse Modulation"
-    ],
-    correctAnswer: "Frequency Modulation (FM)"
-  },
-  {
-    question: "What does 'IC' stand for in electronics?",
-    options: [
-      "Internal Circuit",
-      "Integrated Circuit",
-      "Insulated Conductor",
-      "Impedance Control"
-    ],
-    correctAnswer: "Integrated Circuit"
-  },
-  {
-    question: "In a diode, current flows from:",
-    options: [
-      "Cathode to Anode",
-      "Anode to Cathode",
-      "Both directions equally",
-      "Neither direction"
-    ],
-    correctAnswer: "Anode to Cathode"
-  },
-  {
-    question: "What is the bandwidth of a signal?",
-    options: [
-      "The maximum frequency of the signal",
-      "The difference between highest and lowest frequencies",
-      "The average frequency of the signal",
-      "The total power of the signal"
-    ],
-    correctAnswer: "The difference between highest and lowest frequencies"
+import styles from "./ECE.module.css";
+import { motion, AnimatePresence } from "framer-motion";
+
+
+
+// Function to get a random subset of questions by difficulty levels
+const getRandomQuestions = (data, count = 12) => {
+  // Separate questions by difficulty level
+  const easyQuestions = data.filter((q) => q.level === "easy");
+  const mediumQuestions = data.filter((q) => q.level === "medium");
+  const hardQuestions = data.filter((q) => q.level === "hard");
+
+  // Select 4 random easy questions
+  const shuffledEasy = [...easyQuestions];
+  for (let i = shuffledEasy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledEasy[i], shuffledEasy[j]] = [shuffledEasy[j], shuffledEasy[i]];
   }
-];
+  const selectedEasy = shuffledEasy.slice(0, 4);
 
-// Score code mapping (4-digit codes for each score 0-10)
-const scoreCodeMap = {
-  0: "1024",
-  1: "2048",
-  2: "3072",
-  3: "4096",
-  4: "5120",
-  5: "6144",
-  6: "7168",
-  7: "8192",
-  8: "9216",
-  9: "9999",
-  10: "1234"
+  // Combine medium and hard questions
+  const mediumAndHard = [...mediumQuestions, ...hardQuestions];
+
+  // Shuffle medium and hard questions
+  const shuffledMediumHard = [...mediumAndHard];
+  for (let i = shuffledMediumHard.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledMediumHard[i], shuffledMediumHard[j]] = [
+      shuffledMediumHard[j],
+      shuffledMediumHard[i],
+    ];
+  }
+
+  // Select remaining questions to make up 12 total (8 in this case)
+  const selectedMediumHard = shuffledMediumHard.slice(0, count - 4);
+
+  // Combine and shuffle all selected questions
+  const allSelected = [...selectedEasy, ...selectedMediumHard];
+  for (let i = allSelected.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allSelected[i], allSelected[j]] = [allSelected[j], allSelected[i]];
+  }
+
+  return allSelected;
 };
 
-// 3. RENAMED THE COMPONENT
+// Use the ecedata directly
+const allQuizData = ecedata;
+
 const ECE = () => {
+  const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
-  const [error, setError] = useState('');
-  const [direction, setDirection] = useState('forward');
+  const [error, setError] = useState("");
+  const [direction, setDirection] = useState("forward");
+  const [quizData, setQuizData] = useState([]); // Store the current quiz data in state
+  const [timeLeft, setTimeLeft] = useState(10); // Timer for each question
+  const [isDisqualified, setIsDisqualified] = useState(false); // Track if user is disqualified
 
   const totalQuestions = quizData.length;
 
   const questionVariants = {
     hidden: (direction) => ({
       opacity: 0,
-      x: direction === 'forward' ? 100 : -100
+      x: direction === "forward" ? 100 : -100,
     }),
     visible: {
       opacity: 1,
       x: 0,
-      transition: { duration: 0.3, ease: 'easeInOut' }
+      transition: { duration: 0.3, ease: "easeInOut" },
     },
     exit: (direction) => ({
       opacity: 0,
-      x: direction === 'forward' ? -100 : 100,
-      transition: { duration: 0.3, ease: 'easeInOut' }
-    })
+      x: direction === "forward" ? -100 : 100,
+      transition: { duration: 0.3, ease: "easeInOut" },
+    }),
   };
-  
+
   const errorShake = {
     shake: {
       x: [0, -8, 8, -8, 8, 0],
-      transition: { duration: 0.4 }
-    }
+      transition: { duration: 0.4 },
+    },
   };
+
+  // Set 12 random questions with 4 easy and 8 mixed medium/hard on component mount or restart
+  useEffect(() => {
+    setQuizData(getRandomQuestions(allQuizData, 12));
+  }, []);
+
+  // Timer effect for each question
+  useEffect(() => {
+    if (
+      quizData.length > 0 &&
+      currentQuestion < totalQuestions &&
+      !isDisqualified
+    ) {
+      // Reset timer when question changes
+      setTimeLeft(10);
+
+      // Start the timer
+      const timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timer);
+            // Check if no answer was selected
+            if (answers[currentQuestion] === undefined) {
+              setIsDisqualified(true);
+            }
+            return 0;
+          }
+          // Stop timer if answer is selected
+          if (answers[currentQuestion] !== undefined) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+
+      // Cleanup function to clear interval when component unmounts or dependencies change
+      return () => clearInterval(timer);
+    }
+  }, [currentQuestion, quizData, totalQuestions, answers, isDisqualified]);
 
   const handleOptionSelect = (option) => {
     setAnswers({
       ...answers,
-      [currentQuestion]: option
+      [currentQuestion]: option,
     });
-    setError('');
+    setError("");
+
+    // Clear timer early if user selects an answer
+    setTimeLeft(0);
   };
 
   const handleNext = () => {
     if (answers[currentQuestion] === undefined) {
-      setError('Please select an answer before proceeding.');
+      setError("Please select an answer before proceeding.");
       return;
     }
-    setError('');
-    setDirection('forward');
+    setError("");
+    setDirection("forward");
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
   const handleBack = () => {
-    setError('');
-    setDirection('backward');
+    setError("");
+    setDirection("backward");
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
     }
@@ -186,12 +161,13 @@ const ECE = () => {
 
   const handleSubmit = () => {
     if (answers[currentQuestion] === undefined) {
-      setError('Please select an answer to submit the quiz.');
+      setError("Please select an answer to submit the quiz.");
       return;
     }
     let score = 0;
     for (let i = 0; i < totalQuestions; i++) {
-      if (answers[i] === quizData[i].correctAnswer) {
+      if (answers[i] === quizData[i].answer) {
+        // Fixed: using 'answer' field instead of 'correctAnswer'
         score++;
       }
     }
@@ -200,14 +176,65 @@ const ECE = () => {
   };
 
   const handleRestart = () => {
-    setCurrentQuestion(0);
-    setAnswers({});
-    setShowResults(false);
-    setError('');
-    setDirection('forward');
+    navigate("/");
   };
 
   const progressPercent = ((currentQuestion + 1) / totalQuestions) * 100;
+
+  // Don't render anything until quizData is loaded
+  if (quizData.length === 0) {
+    return (
+      <div className={styles.quizContainer}>
+        <div className={styles.quizCard}>
+          <div className={styles.loadingSpinner}>Loading quiz...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show disqualified screen if disqualified
+  if (isDisqualified) {
+    return (
+      <div className={styles.quizContainer}>
+        <motion.div
+          className={styles.quizCard}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div
+            key="disqualified"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={styles.resultsContainer}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className={styles.congratsIcon}
+            >
+              ❌
+            </motion.div>
+            <h2 className={styles.resultsTitle}>Time's Up!</h2>
+            <p className={styles.congratsText}>You have been disqualified</p>
+
+            <div className={styles.codeDisplay}>
+              <p className={styles.codeLabel}>You ran out of time</p>
+            </div>
+
+            <button
+              onClick={handleRestart}
+              className={styles.submitButton}
+              style={{ width: "100%", marginTop: "2rem" }}
+            >
+              Try Again
+            </button>
+          </motion.div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.quizContainer}>
@@ -237,16 +264,25 @@ const ECE = () => {
               </motion.div>
               <h2 className={styles.resultsTitle}>Congratulations!</h2>
               <p className={styles.congratsText}>You Win!</p>
-              
+
               <div className={styles.codeDisplay}>
-                <p className={styles.codeLabel}>Your Code:</p>
-                <p className={styles.codeValue}>{scoreCodeMap[answers.score]}</p>
+                <p className={styles.codeLabel}>Your Score:</p>
+                <p className={styles.codeValue}>
+                  {answers.score}/{quizData.length}
+                </p>
+                <p className={styles.scoreMessage}>
+                  {answers.score <= 3
+                    ? "Fair!"
+                    : answers.score <= 8
+                    ? "Good!"
+                    : "Superb!"}
+                </p>
               </div>
 
               <button
                 onClick={handleRestart}
                 className={styles.submitButton}
-                style={{ width: '100%', marginTop: '2rem' }}
+                style={{ width: "100%", marginTop: "2rem" }}
               >
                 Thank You
               </button>
@@ -264,8 +300,9 @@ const ECE = () => {
               </div>
               <div className={styles.questionProgress}>
                 Question {currentQuestion + 1} of {totalQuestions}
+                <span className={styles.timer}>Time left: {timeLeft}s</span>
               </div>
-              
+
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={currentQuestion}
@@ -276,13 +313,17 @@ const ECE = () => {
                   exit="exit"
                   className={styles.questionWrapper}
                 >
-                  <h3 className={styles.questionText}>{quizData[currentQuestion].question}</h3>
+                  <h3 className={styles.questionText}>
+                    {quizData[currentQuestion].question}
+                  </h3>
                   <div className={styles.optionsContainer}>
                     {quizData[currentQuestion].options.map((option, index) => (
                       <button
                         key={index}
                         className={`${styles.optionButton} ${
-                          answers[currentQuestion] === option ? styles.selectedOption : ''
+                          answers[currentQuestion] === option
+                            ? styles.selectedOption
+                            : ""
                         }`}
                         onClick={() => handleOptionSelect(option)}
                       >
@@ -292,7 +333,7 @@ const ECE = () => {
                   </div>
                 </motion.div>
               </AnimatePresence>
-              
+
               <AnimatePresence>
                 {error && (
                   <motion.p
@@ -316,7 +357,10 @@ const ECE = () => {
                     Next
                   </button>
                 ) : (
-                  <button onClick={handleSubmit} className={styles.submitButton}>
+                  <button
+                    onClick={handleSubmit}
+                    className={styles.submitButton}
+                  >
                     Submit
                   </button>
                 )}
@@ -329,5 +373,4 @@ const ECE = () => {
   );
 };
 
-// 4. EXPORT THE NEW COMPONENT
 export default ECE;
