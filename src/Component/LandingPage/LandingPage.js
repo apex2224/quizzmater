@@ -6,11 +6,7 @@ import { db } from "../Firebase/firebaseConfig"; // adjust path if needed
 
 import {
   Code,
-  Cpu,
   Database,
-  Zap,
-  Server,
-  BarChart3,
   Users,
 } from "lucide-react";
 // Removed FiPhone, FiFlag as they weren't used in the JSX
@@ -26,13 +22,7 @@ const techFields = [
     position: { top: "10%", left: "5%" },
     rotation: 15,
   },
-  {
-    name: "ME",
-    icon: Cpu,
-    label: "Mechanical Engineering",
-    position: { top: "25%", left: "85%" },
-    rotation: -20,
-  },
+
   {
     name: "ECE",
     icon: Database,
@@ -40,27 +30,7 @@ const techFields = [
     position: { top: "45%", left: "8%" },
     rotation: 30,
   },
-  {
-    name: "BEE",
-    icon: Zap,
-    label: "Electrical Engineering",
-    position: { top: "60%", left: "90%" },
-    rotation: -15,
-  },
-  {
-    name: "BSCIT",
-    icon: Server,
-    label: "Information Tech.",
-    position: { top: "75%", left: "10%" },
-    rotation: 25,
-  },
-  {
-    name: "IT",
-    icon: BarChart3,
-    label: "IT Engineering",
-    position: { top: "15%", left: "50%" },
-    rotation: -25,
-  },
+
   {
     name: "MKT",
     icon: Users,
@@ -73,22 +43,14 @@ const techFields = [
 // Data for course durations
 const courseDurations = {
   CSE: 4,
-  ME: 4,
   ECE: 4,
-  BEE: 4,
-  IT: 4,
-  BSCIT: 3,
   MKT: 3,
 };
 
 // Data for quiz navigation paths
 const quizPaths = {
   CSE: "/quiz/cse",
-  ME: "/quiz/me",
   ECE: "/quiz/ece",
-  BEE: "/quiz/bee",
-  BSCIT: "/quiz/bscit",
-  IT: "/quiz/it",
   MKT: "/quiz/digital-marketing",
 };
 
@@ -108,6 +70,7 @@ const LandingPage = () => {
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
+  const [selectedInterest, setSelectedInterest] = useState("");
   const navigate = useNavigate();
 
   // --- REFACTOR 3: Simplified logic using data maps ---
@@ -137,6 +100,7 @@ const LandingPage = () => {
   const handleYearChange = (e) => setSelectedYear(e.target.value);
   const handleNameChange = (e) => setUserName(e.target.value);
   const handleEmailChange = (e) => setUserEmail(e.target.value);
+  const handleInterestChange = (e) => setSelectedInterest(e.target.value);
 
   const isFormValid = () => {
     return (
@@ -144,6 +108,7 @@ const LandingPage = () => {
       userEmail.trim() !== "" &&
       selectedDepartment !== "" &&
       selectedYear !== "" &&
+      selectedInterest !== "" && // Added interest validation
       phone !== "" &&
       !phoneError
     );
@@ -168,6 +133,7 @@ const LandingPage = () => {
         email: userEmail,
         department: selectedDepartment,
         year: selectedYear,
+        interest: selectedInterest, // Added interest field
         phone: phone,
         countryCode: "+91",
         submittedAt: Timestamp.now(),
@@ -300,6 +266,18 @@ const LandingPage = () => {
                         Year
                       </option>
                     ))}
+                  </select>
+                  {/* Interest Field */}
+                  <select
+                    className={styles.select}
+                    value={selectedInterest}
+                    onChange={handleInterestChange}
+                    required
+                  >
+                    <option value="">Select Interest</option>
+                    <option value="Coding">Coding</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="ECE">ECE</option>
                   </select>
                 </div>
               )}
