@@ -5,6 +5,10 @@
 /.pnp
 .pnp.js
 
+/frontend/node_modules/
+/firestore-export/node_modules/
+serviceAccountKey.json
+
 # testing
 /coverage
 
