@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LandingPage.module.css";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc, Timestamp, query, where, getDocs } from "firebase/firestore";
 import { db } from "../Firebase/firebaseConfig"; // adjust path if needed
 
 import {
@@ -128,6 +128,33 @@ const LandingPage = () => {
     }
 
     try {
+      // Check if the user has already participated with this phone number
+      const participantsRef = collection(db, "participants");
+      const q = query(participantsRef, where("phone", "==", phone));
+      const querySnapshot = await getDocs(q);
+      
+      const existingEntries = [];
+      querySnapshot.forEach((doc) => {
+        existingEntries.push(doc.data());
+      });
+
+      // Check if the user has already used this phone number with the same interest
+      const sameInterestEntry = existingEntries.find(entry => 
+        entry.phone === phone && entry.interest === selectedInterest
+      );
+
+      if (sameInterestEntry) {
+        alert("You have already participated with this phone number and selected interest. Please choose a different interest.");
+        return;
+      }
+
+      // Check if the user has already participated 3 times with different interests
+      const uniqueInterests = [...new Set(existingEntries.map(entry => entry.interest))];
+      if (uniqueInterests.length >= 3) {
+        alert("You have already participated 3 times with different interests. Maximum participation limit reached.");
+        return;
+      }
+
       const userDetails = {
         name: userName,
         email: userEmail,
@@ -180,14 +207,14 @@ const LandingPage = () => {
       <div className={styles.contentRow}>
         {/* Left Column - Text Content */}
         <div className={styles.leftColumn}>
-          <p className={styles.preHeading}>HEY THERE!</p>
+          <p className={styles.preHeading}>Hey Quizzers! 🧠 !</p>
           <h1 className={styles.mainHeading}>
-            Are You Ready{" "}
-            <span className={styles.highlight}>For Opportunities</span>
+            Ready to Challenge{" "}
+            <span className={styles.highlight}>Your Mind and Win Big? </span>
           </h1>
           <p className={styles.description}>
-            Let's discuss how we can help transform your ideas into successful
-            products. Schedule a consultation with our expert team today.
+            Join the ultimate quiz fest — compete, learn, and grab exciting
+            prizes & gift vouchers!
           </p>
         </div>
 
